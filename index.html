@@ -3,114 +3,10 @@
 
 <head>
     <title>Physics Project: Projectile Motion</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-        }
-
-        /* Layout for controls and canvas */
-        .controls {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #eef2f5;
-            border-radius: 5px;
-        }
-
-        .input-group {
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        input[type="range"] {
-            width: 60%;
-        }
-
-        span.value-display {
-            font-family: monospace;
-            color: #007bff;
-            width: 60px;
-            text-align: right;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* The drawing area */
-        canvas {
-            border: 2px solid #333;
-            background-color: #fff;
-            width: 100%;
-            display: block;
-        }
-
-        /* Results section */
-        .results {
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .stat-box {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .stat-value {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -118,140 +14,46 @@
         <h1>Projectile Motion Simulator</h1>
         <p style="text-align: center; color: #666;">Term 1 Physics Bonus Project</p>
 
-        <div class="controls">
-            <div class="input-group">
-                <label>Initial Velocity (v):</label>
-                <input type="range" id="velocity" min="10" max="100" value="50">
-                <span class="value-display" id="show-velocity">50 m/s</span>
+        <div class="top-section">
+            <div class="controls">
+                <div class="input-group">
+                    <label>Initial Velocity (v):</label>
+                    <input type="range" id="velocity" min="10" max="100" value="50">
+                    <span class="value-display" id="show-velocity">50 m/s</span>
+                </div>
+                <div class="input-group">
+                    <label>Angle (θ):</label>
+                    <input type="range" id="angle" min="0" max="90" value="45">
+                    <span class="value-display" id="show-angle">45°</span>
+                </div>
+                <div class="input-group">
+                    <label>Gravity (g):</label>
+                    <input type="range" id="gravity" min="1" max="20" step="0.1" value="9.8">
+                    <span class="value-display" id="show-gravity">9.8</span>
+                </div>
+                <button onclick="startSimulation()" id="btn-launch">Launch Ball</button>
             </div>
-            <div class="input-group">
-                <label>Angle (θ):</label>
-                <input type="range" id="angle" min="0" max="90" value="45">
-                <span class="value-display" id="show-angle">45°</span>
+
+            <div class="results">
+                <div class="stat-box">
+                    <div class="stat-label">Max Height</div>
+                    <div class="stat-value" id="res-height">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Distance (Range)</div>
+                    <div class="stat-value" id="res-range">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Time</div>
+                    <div class="stat-value" id="res-time">-</div>
+                </div>
             </div>
-            <div class="input-group">
-                <label>Gravity (g):</label>
-                <input type="range" id="gravity" min="1" max="20" step="0.1" value="9.8">
-                <span class="value-display" id="show-gravity">9.8</span>
-            </div>
-            <button onclick="startSimulation()" id="btn-launch">Launch Ball</button>
         </div>
 
         <canvas id="myCanvas" width="800" height="400"></canvas>
-
-        <div class="results">
-            <div class="stat-box">
-                <div class="stat-label">Max Height</div>
-                <div class="stat-value" id="res-height">-</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Distance (Range)</div>
-                <div class="stat-value" id="res-range">-</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">Time</div>
-                <div class="stat-value" id="res-time">-</div>
-            </div>
-        </div>
     </div>
-
-    <script>
-        const canvas = document.getElementById("myCanvas");
-        const ctx = canvas.getContext("2d");
-        const velocityInput = document.getElementById("velocity");
-        const angleInput = document.getElementById("angle");
-        const gravityInput = document.getElementById("gravity");
-
-        let timer = null;
-        let scale = 5;
-
-        function updateDisplays() {
-            document.getElementById("show-velocity").innerText = velocityInput.value + " m/s";
-            document.getElementById("show-angle").innerText = angleInput.value + "°";
-            document.getElementById("show-gravity").innerText = gravityInput.value;
-            drawBackground();
-        }
-
-        velocityInput.oninput = updateDisplays;
-        angleInput.oninput = updateDisplays;
-        gravityInput.oninput = updateDisplays;
-
-        function drawBackground() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height - 20);
-            ctx.lineTo(canvas.width, canvas.height - 20);
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = "#555";
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(20, canvas.height - 20, 5, 0, Math.PI * 2);
-            ctx.fillStyle = "blue";
-            ctx.fill();
-        }
-
-        function startSimulation() {
-            let v0 = parseFloat(velocityInput.value);
-            let angleDeg = parseFloat(angleInput.value);
-            let g = parseFloat(gravityInput.value);
-            let angleRad = angleDeg * (Math.PI / 180);
-
-            let vx = v0 * Math.cos(angleRad);
-            let vy = v0 * Math.sin(angleRad);
-
-            let totalTime = (2 * vy) / g;
-            let maxHeight = (vy * vy) / (2 * g);
-            let maxRange = vx * totalTime;
-
-            document.getElementById("res-height").innerText = maxHeight.toFixed(2) + " m";
-            document.getElementById("res-range").innerText = maxRange.toFixed(2) + " m";
-            document.getElementById("res-time").innerText = totalTime.toFixed(2) + " s";
-
-            let btn = document.getElementById("btn-launch");
-            btn.disabled = true;
-            btn.innerText = "Simulating...";
-
-            let startTime = Date.now();
-            scale = 700 / (maxRange + 10);
-            if (scale > 10) scale = 10;
-
-            if (timer) clearInterval(timer);
-
-            timer = setInterval(function () {
-                let timePassed = (Date.now() - startTime) / 1000;
-                let t = timePassed * 2;
-
-                if (t > totalTime) {
-                    t = totalTime;
-                    clearInterval(timer);
-                    btn.disabled = false;
-                    btn.innerText = "Launch Ball";
-                }
-
-                let x = vx * t;
-                let y = (vy * t) - (0.5 * g * t * t);
-
-                drawFrame(x, y);
-            }, 20);
-        }
-
-        function drawFrame(x, y) {
-            drawBackground();
-            let pixelX = 20 + (x * scale);
-            let pixelY = (canvas.height - 20) - (y * scale);
-
-            ctx.beginPath();
-            ctx.arc(pixelX, pixelY, 8, 0, Math.PI * 2);
-            ctx.fillStyle = "red";
-            ctx.fill();
-            ctx.strokeStyle = "black";
-            ctx.lineWidth = 1;
-            ctx.stroke();
-        }
-
-        drawBackground();
-        updateDisplays();
-    </script>
 </body>
+
+<script src="main.js"></script>
 
 </html>
